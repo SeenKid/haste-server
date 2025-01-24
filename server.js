@@ -1,4 +1,4 @@
-var http = require('http');
+var https = require('https');
 var fs = require('fs');
 
 var uglify = require('uglify-js');
@@ -9,6 +9,12 @@ var connect_st = require('st');
 var connect_rate_limit = require('connect-ratelimit');
 
 var DocumentHandler = require('./lib/document_handler');
+
+// certs 
+const options = {
+  key: fs.readFileSync('/etc/letsencrypt/live/DOMAIN/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/DOMAIN/fullchain.pem'),
+};
 
 // Load the configuration and set some defaults
 const configPath = process.argv.length <= 2 ? 'config.js' : process.argv[2];
@@ -159,6 +165,6 @@ app.use(connect_st({
   index: 'index.html'
 }));
 
-http.createServer(app).listen(config.port, config.host);
+https.createServer(options, app).listen(config.port, config.host);
 
-winston.info('listening on ' + config.host + ':' + config.port);
+winston.info('listening on https://' + config.host + ':' + config.port);
